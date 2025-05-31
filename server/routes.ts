@@ -164,91 +164,84 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Simple chat function to generate bot responses
+  function generateSimpleBotResponse(userMessage: string, bot: any): string {
+    const personality = bot.personality || { friendliness: 5, humor: 5, formality: 5, detailLevel: 5 };
+    
+    // Basic response patterns based on personality
+    let response = "";
+    
+    // Greeting responses
+    if (userMessage.toLowerCase().includes('hallo') || userMessage.toLowerCase().includes('hi')) {
+      if (personality.friendliness > 7) {
+        response = `Hallo! Schön, dich kennenzulernen! Ich bin ${bot.name}. Wie kann ich dir heute helfen?`;
+      } else if (personality.formality > 7) {
+        response = `Guten Tag. Ich bin ${bot.name}. Womit kann ich Ihnen behilflich sein?`;
+      } else {
+        response = `Hi! Ich bin ${bot.name}. Was kann ich für dich tun?`;
+      }
+    }
+    // Question responses
+    else if (userMessage.includes('?')) {
+      if (personality.detailLevel > 7) {
+        response = `Das ist eine interessante Frage! Basierend auf meinem Wissen zu ${bot.type} würde ich sagen: ${userMessage.replace('?', '')} ist ein wichtiges Thema. Lass mich dir eine ausführliche Antwort geben...`;
+      } else {
+        response = `Gute Frage! Als ${bot.type} kann ich dir dabei helfen. Könntest du mir mehr Details geben?`;
+      }
+    }
+    // Default responses
+    else {
+      if (personality.humor > 7) {
+        response = `Ha! Das ist witzig. Als ${bot.name} finde ich, dass ${userMessage} durchaus interessant ist. Was denkst du denn darüber? 😄`;
+      } else if (personality.formality > 7) {
+        response = `Ich verstehe Ihre Anfrage bezüglich "${userMessage}". Als professioneller ${bot.type} bin ich gerne bereit, Ihnen weiterzuhelfen.`;
+      } else {
+        response = `Verstehe! Du sprichst über "${userMessage}". Das passt gut zu meinen Fähigkeiten als ${bot.type}. Erzähl mir mehr!`;
+      }
+    }
+    
+    return response;
+  }
+
   app.post("/api/sessions/:id/messages", isAuthenticated, async (req: any, res) => {
     try {
-      const sessionId = parseInt(req.params.id);
+      const botId = parseInt(req.params.id);
+      const userId = req.user.id;
       const { content } = req.body;
       
       if (!content || typeof content !== 'string') {
         return res.status(400).json({ message: "Message content is required" });
       }
 
-      // Add user message
-      const userMessage = await storage.addChatMessage({
-        sessionId,
-        role: "user",
-        content,
-      });
-
-      // Get bot configuration for AI response
-      const messages = await storage.getChatMessagesBySessionId(sessionId);
+      // Find the bot in memory
+      const bots = userBots.get(userId) || [];
+      const bot = bots.find(b => b.id === botId);
       
-      // Get session info to find the bot
-      const sessionInfo = await storage.getChatSessionById(sessionId);
-      if (!sessionInfo) {
-        return res.status(404).json({ message: "Chat session not found" });
-      }
-
-      const bot = await storage.getBotById(sessionInfo.botId);
       if (!bot) {
         return res.status(404).json({ message: "Bot not found" });
       }
 
-      // Build chat history for context
-      const chatHistory = messages.slice(-10).map(msg => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content
-      }));
+      // Generate bot response
+      const botResponse = generateSimpleBotResponse(content, bot);
+      
+      const userMessage = {
+        id: Date.now(),
+        role: "user",
+        content,
+        timestamp: new Date()
+      };
+      
+      const botMessage = {
+        id: Date.now() + 1,
+        role: "assistant", 
+        content: botResponse,
+        timestamp: new Date()
+      };
 
-      // Generate AI response
-      try {
-        const botConfig = {
-          name: bot.name,
-          description: bot.description || "",
-          type: bot.type,
-          targetAudience: bot.targetAudience || "",
-          capabilities: bot.capabilities || "",
-          knowledgeBase: bot.knowledgeBase || "",
-          personality: bot.personality || {
-            friendliness: 5,
-            humor: 5,
-            formality: 5,
-            detailLevel: 5
-          },
-          examples: bot.examples || []
-        };
-
-        const aiResponse = await generateBotResponse(content, botConfig, chatHistory);
-
-        // Add bot response
-        const botMessage = await storage.addChatMessage({
-          sessionId,
-          role: "assistant",
-          content: aiResponse,
-        });
-
-        res.json({
-          userMessage,
-          botMessage
-        });
-      } catch (aiError) {
-        console.error("Error generating AI response:", aiError);
-        
-        // Add fallback response
-        const fallbackMessage = await storage.addChatMessage({
-          sessionId,
-          role: "assistant",
-          content: "I'm sorry, I'm having trouble generating a response right now. Please try again.",
-        });
-
-        res.json({
-          userMessage,
-          botMessage: fallbackMessage
-        });
-      }
+      res.json({ userMessage, botMessage });
     } catch (error) {
-      console.error("Error adding chat message:", error);
-      res.status(500).json({ message: "Failed to add chat message" });
+      console.error("Error processing chat message:", error);
+      res.status(500).json({ message: "Failed to process chat message" });
     }
   });
 
