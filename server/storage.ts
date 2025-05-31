@@ -24,6 +24,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   deleteUser(id: string): Promise<boolean>;
+  updateUserProfile(id: string, data: Partial<UpsertUser>): Promise<User>;
   
   // Bot operations
   getBotsByUserId(userId: string): Promise<Bot[]>;

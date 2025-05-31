@@ -15,6 +15,7 @@ import Privacy from "@/pages/privacy";
 import Impressum from "@/pages/impressum";
 import Terms from "@/pages/terms";
 import Contact from "@/pages/contact";
+import UserSettings from "@/pages/user-settings";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -37,6 +38,7 @@ function Router() {
           <Route path="/impressum" component={Impressum} />
           <Route path="/terms" component={Terms} />
           <Route path="/contact" component={Contact} />
+          <Route path="/settings" component={UserSettings} />
         </>
       )}
       <Route component={NotFound} />

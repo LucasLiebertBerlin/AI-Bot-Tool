@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, MessageCircle, TrendingUp, Plus, Search, Shield, LogOut, Users, HelpCircle } from "lucide-react";
+import { Bot, MessageCircle, TrendingUp, Plus, Search, Shield, LogOut, Users, HelpCircle, User } from "lucide-react";
 import BotCard from "@/components/bot-card";
 import TutorialModal from "@/components/tutorial-modal";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -145,14 +145,18 @@ export default function Dashboard() {
           {/* User Profile */}
           <div className="flex-shrink-0 px-4 py-4 border-t border-slate-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-slate-600" />
+              <button 
+                onClick={() => setLocation("/settings")}
+                className="flex items-center flex-1 text-left hover:bg-slate-50 rounded-lg p-2 transition-colors"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-slate-900">User</p>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-slate-900">Benutzer</p>
+                  <p className="text-xs text-slate-500">Einstellungen</p>
                 </div>
-              </div>
+              </button>
               <Button 
                 variant="ghost" 
                 size="sm"
@@ -165,7 +169,7 @@ export default function Dashboard() {
                     window.location.href = "/api/logout";
                   }
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 ml-2"
               >
                 <LogOut className="h-4 w-4" />
                 Abmelden

@@ -371,6 +371,49 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // User profile update endpoint
+  app.put("/api/user/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { firstName, lastName, email, language, theme, emailNotifications } = req.body;
+
+      const updatedUser = await storage.updateUserProfile(userId, {
+        firstName,
+        lastName,
+        email,
+        // Store preferences as JSON or separate fields
+        preferences: JSON.stringify({ language, theme, emailNotifications })
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Fehler beim Aktualisieren des Profils" });
+    }
+  });
+
+  // Delete user account endpoint
+  app.delete("/api/user/account", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Delete user and all associated data
+      const success = await storage.deleteUser(userId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Benutzer nicht gefunden" });
+      }
+
+      // Logout the user
+      req.logout(() => {
+        res.json({ message: "Account erfolgreich gelöscht" });
+      });
+    } catch (error) {
+      console.error("Error deleting user account:", error);
+      res.status(500).json({ message: "Fehler beim Löschen des Accounts" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
