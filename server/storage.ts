@@ -40,7 +40,7 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
@@ -74,7 +74,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Bot operations
-  async getBotsByUserId(userId: number): Promise<Bot[]> {
+  async getBotsByUserId(userId: string): Promise<Bot[]> {
     return await db
       .select()
       .from(bots)
@@ -87,7 +87,7 @@ export class DatabaseStorage implements IStorage {
     return bot || undefined;
   }
 
-  async createBot(userId: number, bot: InsertBot): Promise<Bot> {
+  async createBot(userId: string, bot: InsertBot): Promise<Bot> {
     const [newBot] = await db
       .insert(bots)
       .values({ ...bot, userId })
@@ -95,7 +95,7 @@ export class DatabaseStorage implements IStorage {
     return newBot;
   }
 
-  async updateBot(id: number, userId: number, bot: Partial<InsertBot>): Promise<Bot | undefined> {
+  async updateBot(id: number, userId: string, bot: Partial<InsertBot>): Promise<Bot | undefined> {
     const [updatedBot] = await db
       .update(bots)
       .set({ ...bot, updatedAt: new Date() })
@@ -104,7 +104,7 @@ export class DatabaseStorage implements IStorage {
     return updatedBot || undefined;
   }
 
-  async deleteBot(id: number, userId: number): Promise<boolean> {
+  async deleteBot(id: number, userId: string): Promise<boolean> {
     const result = await db
       .delete(bots)
       .where(and(eq(bots.id, id), eq(bots.userId, userId)));
@@ -112,7 +112,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Chat operations
-  async getChatSessionsByBotId(botId: number, userId: number): Promise<ChatSession[]> {
+  async getChatSessionsByBotId(botId: number, userId: string): Promise<ChatSession[]> {
     return await db
       .select()
       .from(chatSessions)
@@ -125,7 +125,7 @@ export class DatabaseStorage implements IStorage {
     return session || undefined;
   }
 
-  async createChatSession(userId: number, session: InsertChatSession): Promise<ChatSession> {
+  async createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession> {
     const [newSession] = await db
       .insert(chatSessions)
       .values({ ...session, userId })

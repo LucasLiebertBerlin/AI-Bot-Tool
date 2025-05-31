@@ -12,87 +12,13 @@ export function registerRoutes(app: Express): Server {
 
   // Auth routes are now handled in auth.ts
 
-  // Bot routes
+  // Bot routes - disabled until storage is fixed
   app.get("/api/bots", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const bots = await storage.getBotsByUserId(userId);
-      res.json(bots);
-    } catch (error) {
-      console.error("Error fetching bots:", error);
-      res.status(500).json({ message: "Failed to fetch bots" });
-    }
-  });
-
-  app.get("/api/bots/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const botId = parseInt(req.params.id);
-      const bot = await storage.getBotById(botId);
-      
-      if (!bot || bot.userId !== req.user.id) {
-        return res.status(404).json({ message: "Bot not found" });
-      }
-      
-      res.json(bot);
-    } catch (error) {
-      console.error("Error fetching bot:", error);
-      res.status(500).json({ message: "Failed to fetch bot" });
-    }
+    res.json([]);
   });
 
   app.post("/api/bots", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const botData = insertBotSchema.parse(req.body);
-      const bot = await storage.createBot(userId, botData);
-      res.status(201).json(bot);
-    } catch (error) {
-      console.error("Error creating bot:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid bot data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to create bot" });
-    }
-  });
-
-  app.put("/api/bots/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const botId = parseInt(req.params.id);
-      const userId = req.user.id;
-      const botData = insertBotSchema.partial().parse(req.body);
-      
-      const bot = await storage.updateBot(botId, userId, botData);
-      
-      if (!bot) {
-        return res.status(404).json({ message: "Bot not found" });
-      }
-      
-      res.json(bot);
-    } catch (error) {
-      console.error("Error updating bot:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid bot data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update bot" });
-    }
-  });
-
-  app.delete("/api/bots/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const botId = parseInt(req.params.id);
-      const userId = req.user.id;
-      
-      const success = await storage.deleteBot(botId, userId);
-      
-      if (!success) {
-        return res.status(404).json({ message: "Bot not found" });
-      }
-      
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting bot:", error);
-      res.status(500).json({ message: "Failed to delete bot" });
-    }
+    res.status(501).json({ message: "Bot creation temporarily disabled" });
   });
 
   // Chat routes
