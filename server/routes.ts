@@ -12,14 +12,11 @@ export function registerRoutes(app: Express): Server {
 
   // Auth routes are now handled in auth.ts
 
-  // Temporary bot storage until database is fixed
-  const userBots = new Map<string, any[]>();
-
-  // Bot routes
+  // Bot routes with database storage
   app.get("/api/bots", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const bots = userBots.get(userId) || [];
+      const bots = await storage.getBotsByUserId(userId);
       res.json(bots);
     } catch (error) {
       console.error("Error fetching bots:", error);
@@ -30,12 +27,9 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/bots", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples } = req.body;
+      const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples, status } = req.body;
       
-      // Create bot object
-      const bot = {
-        id: Math.floor(Math.random() * 1000000),
-        userId,
+      const botData = {
         name: name || "Neuer Bot",
         description: description || null,
         type: type || "assistant",
@@ -44,16 +38,10 @@ export function registerRoutes(app: Express): Server {
         knowledgeBase: knowledgeBase || null,
         personality: personality || { friendliness: 5, humor: 5, formality: 5, detailLevel: 5 },
         examples: examples || [],
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        status: status || "active"
       };
       
-      // Store bot in memory
-      const existingBots = userBots.get(userId) || [];
-      existingBots.push(bot);
-      userBots.set(userId, existingBots);
-      
+      const bot = await storage.createBot(userId, botData);
       res.status(201).json(bot);
     } catch (error) {
       console.error("Error creating bot:", error);
@@ -64,11 +52,9 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/bots/:id", isAuthenticated, async (req: any, res) => {
     try {
       const botId = parseInt(req.params.id);
-      const userId = req.user.id;
-      const bots = userBots.get(userId) || [];
-      const bot = bots.find(b => b.id === botId);
+      const bot = await storage.getBotById(botId);
       
-      if (!bot) {
+      if (!bot || bot.userId !== req.user.id) {
         return res.status(404).json({ message: "Bot not found" });
       }
       
@@ -83,31 +69,27 @@ export function registerRoutes(app: Express): Server {
     try {
       const botId = parseInt(req.params.id);
       const userId = req.user.id;
-      const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples } = req.body;
+      const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples, status } = req.body;
       
-      const bots = userBots.get(userId) || [];
-      const botIndex = bots.findIndex(b => b.id === botId);
+      const updateData = {
+        name,
+        description,
+        type,
+        targetAudience,
+        capabilities,
+        knowledgeBase,
+        personality,
+        examples,
+        status
+      };
       
-      if (botIndex === -1) {
+      const bot = await storage.updateBot(botId, userId, updateData);
+      
+      if (!bot) {
         return res.status(404).json({ message: "Bot not found" });
       }
       
-      // Update bot data
-      bots[botIndex] = {
-        ...bots[botIndex],
-        name: name || bots[botIndex].name,
-        description: description !== undefined ? description : bots[botIndex].description,
-        type: type || bots[botIndex].type,
-        targetAudience: targetAudience !== undefined ? targetAudience : bots[botIndex].targetAudience,
-        capabilities: capabilities !== undefined ? capabilities : bots[botIndex].capabilities,
-        knowledgeBase: knowledgeBase !== undefined ? knowledgeBase : bots[botIndex].knowledgeBase,
-        personality: personality || bots[botIndex].personality,
-        examples: examples || bots[botIndex].examples,
-        updatedAt: new Date()
-      };
-      
-      userBots.set(userId, bots);
-      res.json(bots[botIndex]);
+      res.json(bot);
     } catch (error) {
       console.error("Error updating bot:", error);
       res.status(500).json({ message: "Failed to update bot" });
