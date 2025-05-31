@@ -141,8 +141,9 @@ export default function Dashboard() {
                     window.location.href = "/api/logout";
                   }
                 }}
+                className="flex items-center gap-2"
               >
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-4 w-4" />
                 Abmelden
               </Button>
             </div>
