@@ -31,6 +31,7 @@ export interface IStorage {
   
   // Chat operations
   getChatSessionsByBotId(botId: number, userId: string): Promise<ChatSession[]>;
+  getChatSessionById(sessionId: number): Promise<ChatSession | undefined>;
   createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession>;
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
   addChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -75,15 +76,27 @@ export class DatabaseStorage implements IStorage {
   async createBot(userId: string, bot: InsertBot): Promise<Bot> {
     const [newBot] = await db
       .insert(bots)
-      .values({ ...bot, userId })
+      .values({ 
+        ...bot, 
+        userId,
+        personality: bot.personality || {
+          friendliness: 5,
+          humor: 5,
+          formality: 5,
+          detailLevel: 5
+        },
+        examples: bot.examples || []
+      })
       .returning();
     return newBot;
   }
 
   async updateBot(id: number, userId: string, bot: Partial<InsertBot>): Promise<Bot | undefined> {
+    const updateData: any = { ...bot, updatedAt: new Date() };
+    
     const [updatedBot] = await db
       .update(bots)
-      .set({ ...bot, updatedAt: new Date() })
+      .set(updateData)
       .where(and(eq(bots.id, id), eq(bots.userId, userId)))
       .returning();
     return updatedBot;
@@ -93,7 +106,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(bots)
       .where(and(eq(bots.id, id), eq(bots.userId, userId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   // Chat operations
@@ -103,6 +116,11 @@ export class DatabaseStorage implements IStorage {
       .from(chatSessions)
       .where(and(eq(chatSessions.botId, botId), eq(chatSessions.userId, userId)))
       .orderBy(desc(chatSessions.updatedAt));
+  }
+
+  async getChatSessionById(sessionId: number): Promise<ChatSession | undefined> {
+    const [session] = await db.select().from(chatSessions).where(eq(chatSessions.id, sessionId));
+    return session;
   }
 
   async createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession> {

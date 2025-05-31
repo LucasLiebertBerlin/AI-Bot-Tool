@@ -170,13 +170,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get bot configuration for AI response
       const messages = await storage.getChatMessagesBySessionId(sessionId);
-      const session = await db.select().from(chatSessions).where(eq(chatSessions.id, sessionId)).limit(1);
       
-      if (!session.length) {
+      // Get session info to find the bot
+      const sessionInfo = await storage.getChatSessionById(sessionId);
+      if (!sessionInfo) {
         return res.status(404).json({ message: "Chat session not found" });
       }
 
-      const bot = await storage.getBotById(session[0].botId);
+      const bot = await storage.getBotById(sessionInfo.botId);
       if (!bot) {
         return res.status(404).json({ message: "Bot not found" });
       }
