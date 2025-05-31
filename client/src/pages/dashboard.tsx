@@ -159,10 +159,27 @@ export default function Dashboard() {
             <h2 className="text-xl font-semibold text-slate-900">Dashboard</h2>
             <p className="text-sm text-slate-600">Verwalten Sie Ihre KI-Chatbots</p>
           </div>
-          <Button onClick={() => setLocation("/create-bot")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Neuen Bot erstellen
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => setLocation("/create-bot")}>
+              <Plus className="mr-2 h-4 w-4" />
+              Neuen Bot erstellen
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                try {
+                  await apiRequest("POST", "/api/logout");
+                  window.location.href = "/";
+                } catch (error) {
+                  window.location.href = "/api/logout";
+                }
+              }}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Abmelden
+            </Button>
+          </div>
         </div>
 
         {/* Main Content Area */}
