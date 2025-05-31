@@ -25,7 +25,7 @@ export const sessions = pgTable(
 
 // User storage table for local authentication
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: varchar("id").primaryKey(),
   email: varchar("email").unique().notNull(),
   password: varchar("password").notNull(),
   firstName: varchar("first_name"),
@@ -37,7 +37,7 @@ export const users = pgTable("users", {
 
 export const bots = pgTable("bots", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name").notNull(),
   description: text("description"),
   type: varchar("type").notNull().default("assistant"),
@@ -61,7 +61,7 @@ export const bots = pgTable("bots", {
 
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   botId: integer("bot_id").notNull().references(() => bots.id, { onDelete: "cascade" }),
   title: varchar("title"),
   createdAt: timestamp("created_at").defaultNow(),

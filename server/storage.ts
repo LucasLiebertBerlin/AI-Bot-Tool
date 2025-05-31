@@ -5,7 +5,6 @@ import {
   chatMessages,
   type User,
   type UpsertUser,
-  type CreateUser,
   type Bot,
   type InsertBot,
   type ChatSession,
@@ -19,36 +18,36 @@ import { eq, desc, and } from "drizzle-orm";
 // Interface for storage operations
 export interface IStorage {
   // User operations
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Bot operations
-  getBotsByUserId(userId: number): Promise<Bot[]>;
+  getBotsByUserId(userId: string): Promise<Bot[]>;
   getBotById(id: number): Promise<Bot | undefined>;
-  createBot(userId: number, bot: InsertBot): Promise<Bot>;
-  updateBot(id: number, userId: number, bot: Partial<InsertBot>): Promise<Bot | undefined>;
-  deleteBot(id: number, userId: number): Promise<boolean>;
+  createBot(userId: string, bot: InsertBot): Promise<Bot>;
+  updateBot(id: number, userId: string, bot: Partial<InsertBot>): Promise<Bot | undefined>;
+  deleteBot(id: number, userId: string): Promise<boolean>;
   
   // Chat operations
-  getChatSessionsByBotId(botId: number, userId: number): Promise<ChatSession[]>;
+  getChatSessionsByBotId(botId: number, userId: string): Promise<ChatSession[]>;
   getChatSessionById(sessionId: number): Promise<ChatSession | undefined>;
-  createChatSession(userId: number, session: InsertChatSession): Promise<ChatSession>;
+  createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession>;
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
   addChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
 }
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    return user || undefined;
   }
 
   async createUser(userData: UpsertUser): Promise<User> {
@@ -64,7 +63,7 @@ export class DatabaseStorage implements IStorage {
       .insert(users)
       .values(userData)
       .onConflictDoUpdate({
-        target: users.id,
+        target: users.email,
         set: {
           ...userData,
           updatedAt: new Date(),
@@ -75,49 +74,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Bot operations
-  async getBotsByUserId(userId: string): Promise<Bot[]> {
+  async getBotsByUserId(userId: number): Promise<Bot[]> {
     return await db
       .select()
       .from(bots)
       .where(eq(bots.userId, userId))
-      .orderBy(desc(bots.updatedAt));
+      .orderBy(desc(bots.createdAt));
   }
 
   async getBotById(id: number): Promise<Bot | undefined> {
     const [bot] = await db.select().from(bots).where(eq(bots.id, id));
-    return bot;
+    return bot || undefined;
   }
 
-  async createBot(userId: string, bot: InsertBot): Promise<Bot> {
+  async createBot(userId: number, bot: InsertBot): Promise<Bot> {
     const [newBot] = await db
       .insert(bots)
-      .values({ 
-        ...bot, 
-        userId,
-        personality: bot.personality || {
-          friendliness: 5,
-          humor: 5,
-          formality: 5,
-          detailLevel: 5
-        },
-        examples: bot.examples || []
-      })
+      .values({ ...bot, userId })
       .returning();
     return newBot;
   }
 
-  async updateBot(id: number, userId: string, bot: Partial<InsertBot>): Promise<Bot | undefined> {
-    const updateData: any = { ...bot, updatedAt: new Date() };
-    
+  async updateBot(id: number, userId: number, bot: Partial<InsertBot>): Promise<Bot | undefined> {
     const [updatedBot] = await db
       .update(bots)
-      .set(updateData)
+      .set({ ...bot, updatedAt: new Date() })
       .where(and(eq(bots.id, id), eq(bots.userId, userId)))
       .returning();
-    return updatedBot;
+    return updatedBot || undefined;
   }
 
-  async deleteBot(id: number, userId: string): Promise<boolean> {
+  async deleteBot(id: number, userId: number): Promise<boolean> {
     const result = await db
       .delete(bots)
       .where(and(eq(bots.id, id), eq(bots.userId, userId)));
@@ -125,20 +112,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Chat operations
-  async getChatSessionsByBotId(botId: number, userId: string): Promise<ChatSession[]> {
+  async getChatSessionsByBotId(botId: number, userId: number): Promise<ChatSession[]> {
     return await db
       .select()
       .from(chatSessions)
       .where(and(eq(chatSessions.botId, botId), eq(chatSessions.userId, userId)))
-      .orderBy(desc(chatSessions.updatedAt));
+      .orderBy(desc(chatSessions.createdAt));
   }
 
   async getChatSessionById(sessionId: number): Promise<ChatSession | undefined> {
     const [session] = await db.select().from(chatSessions).where(eq(chatSessions.id, sessionId));
-    return session;
+    return session || undefined;
   }
 
-  async createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession> {
+  async createChatSession(userId: number, session: InsertChatSession): Promise<ChatSession> {
     const [newSession] = await db
       .insert(chatSessions)
       .values({ ...session, userId })
