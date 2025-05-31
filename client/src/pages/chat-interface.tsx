@@ -234,7 +234,7 @@ export default function ChatInterface() {
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {/* Welcome Message */}
-          {(!messages || messages.length === 0) && !messagesLoading && (
+          {(!messages || messages.length === 0) && !messagesLoading && bot && (
             <div className="flex items-start space-x-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-blue-500 text-sm">🤖</span>
@@ -271,7 +271,7 @@ export default function ChatInterface() {
               key={msg.id}
               message={msg}
               isUser={msg.role === "user"}
-              botName={bot.name}
+              botName={bot?.name || "Bot"}
             />
           ))}
 
