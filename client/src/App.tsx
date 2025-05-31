@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import BotCreator from "@/pages/bot-creator";
 import BotEditor from "@/pages/bot-editor";
 import ChatInterface from "@/pages/chat-interface";
+import AdminDashboard from "@/pages/admin-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -27,6 +28,7 @@ function Router() {
           <Route path="/create-bot" component={BotCreator} />
           <Route path="/bots/:id/edit" component={BotEditor} />
           <Route path="/bots/:id/chat" component={ChatInterface} />
+          <Route path="/admin" component={AdminDashboard} />
         </>
       )}
       <Route component={NotFound} />

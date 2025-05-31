@@ -261,6 +261,81 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Admin middleware
+  const isAdmin = async (req: any, res: any, next: any) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // For now, admin is user with email containing "admin"
+      const user = await storage.getUser(req.user.id);
+      if (!user || !user.email?.includes("admin")) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+
+  // Admin routes
+  app.get("/api/admin/users", isAdmin, async (req: any, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.get("/api/admin/bots", isAdmin, async (req: any, res) => {
+    try {
+      const bots = await storage.getAllBots();
+      res.json(bots);
+    } catch (error) {
+      console.error("Error fetching all bots:", error);
+      res.status(500).json({ message: "Failed to fetch bots" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.params.id;
+      if (userId === req.user.id) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+      
+      const success = await storage.deleteUser(userId);
+      if (!success) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  app.delete("/api/admin/bots/:id", isAdmin, async (req: any, res) => {
+    try {
+      const botId = parseInt(req.params.id);
+      const success = await storage.deleteBot(botId, "admin");
+      
+      if (!success) {
+        return res.status(404).json({ message: "Bot not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting bot:", error);
+      res.status(500).json({ message: "Failed to delete bot" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
