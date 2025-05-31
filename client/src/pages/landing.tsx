@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bot, Palette, MessageCircle, Brain } from "lucide-react";
+import { Bot, Palette, MessageCircle, Brain, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export default function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const handleLogin = () => {
     window.location.href = "/api/login";
   };
@@ -18,10 +21,12 @@ export default function Landing() {
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                   <Bot className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-xl font-bold text-slate-900">BotCraft</span>
+                <span className="text-xl font-bold text-slate-900">Liebert IT</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <Button variant="ghost" onClick={handleLogin}>
                 Anmelden
               </Button>
@@ -29,8 +34,40 @@ export default function Landing() {
                 Registrieren
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 bg-white">
+            <div className="px-4 py-2 space-y-2">
+              <Button 
+                variant="ghost" 
+                onClick={handleLogin} 
+                className="w-full justify-start"
+              >
+                Anmelden
+              </Button>
+              <Button 
+                onClick={handleLogin}
+                className="w-full"
+              >
+                Registrieren
+              </Button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -42,7 +79,7 @@ export default function Landing() {
               <span className="text-blue-600"> KI-Chatbots</span>
             </h1>
             <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-              Mit BotCraft kannst du personalisierte KI-gestützte Chatbots ohne Programmierkenntnisse erstellen, trainieren und verwalten. Definiere individuelle Fähigkeiten und Persönlichkeitsmerkmale für jeden Bot.
+              Mit Liebert IT kannst du personalisierte KI-gestützte Chatbots ohne Programmierkenntnisse erstellen, trainieren und verwalten. Definiere individuelle Fähigkeiten und Persönlichkeitsmerkmale für jeden Bot.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={handleLogin}>
