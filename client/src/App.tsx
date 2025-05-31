@@ -11,6 +11,10 @@ import BotCreator from "@/pages/bot-creator";
 import BotEditor from "@/pages/bot-editor";
 import ChatInterface from "@/pages/chat-interface";
 import AdminDashboard from "@/pages/admin-dashboard";
+import Privacy from "@/pages/privacy";
+import Impressum from "@/pages/impressum";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -29,6 +33,10 @@ function Router() {
           <Route path="/bots/:id/edit" component={BotEditor} />
           <Route path="/bots/:id/chat" component={ChatInterface} />
           <Route path="/admin" component={AdminDashboard} />
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/impressum" component={Impressum} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/contact" component={Contact} />
         </>
       )}
       <Route component={NotFound} />

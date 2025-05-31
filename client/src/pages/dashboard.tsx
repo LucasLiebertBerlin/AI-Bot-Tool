@@ -90,7 +90,7 @@ export default function Dashboard() {
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Bot className="h-4 w-4 text-white" />
               </div>
-              <h1 className="text-lg font-semibold text-slate-900">AI Bot Studio</h1>
+              <h1 className="text-lg font-semibold text-slate-900">Liebert IT - AI Bot Studio</h1>
             </div>
           </div>
 
@@ -116,6 +116,13 @@ export default function Dashboard() {
                 Admin Panel
               </button>
             )}
+            <button 
+              onClick={() => setLocation("/contact")}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg"
+            >
+              <Users className="mr-3 h-4 w-4" />
+              Kontakt
+            </button>
           </nav>
 
           {/* User Profile */}

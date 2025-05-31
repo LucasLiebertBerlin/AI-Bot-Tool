@@ -341,6 +341,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Contact form endpoint
+  app.post("/api/contact", async (req: any, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "Alle Felder sind erforderlich" });
+      }
+
+      // Log the contact message (you could also save to database if needed)
+      console.log("Contact form submission:", {
+        name,
+        email,
+        subject,
+        message,
+        timestamp: new Date().toISOString(),
+      });
+
+      // In a real application, you would send an email here
+      // For now, we just acknowledge receipt
+      res.json({ 
+        success: true, 
+        message: "Nachricht erhalten. Wir werden uns bald bei Ihnen melden." 
+      });
+    } catch (error) {
+      console.error("Error processing contact form:", error);
+      res.status(500).json({ message: "Fehler beim Senden der Nachricht" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
