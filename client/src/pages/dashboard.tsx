@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -8,9 +9,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, MessageCircle, TrendingUp, Plus, Search } from "lucide-react";
+import { Bot, MessageCircle, TrendingUp, Plus, Search, Shield, LogOut } from "lucide-react";
 import BotCard from "@/components/bot-card";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { apiRequest } from "@/lib/queryClient";
 import type { Bot as BotType } from "@shared/schema";
 
 interface DashboardStats {
@@ -22,6 +24,7 @@ interface DashboardStats {
 export default function Dashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
+  const { isAdmin } = useAdmin();
   const [, setLocation] = useLocation();
 
   // Redirect to home if not authenticated
@@ -104,6 +107,15 @@ export default function Dashboard() {
               <Plus className="mr-3 h-4 w-4" />
               Bot erstellen
             </button>
+            {isAdmin && (
+              <button 
+                onClick={() => setLocation("/admin")}
+                className="flex items-center w-full px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg"
+              >
+                <Shield className="mr-3 h-4 w-4" />
+                Admin Panel
+              </button>
+            )}
           </nav>
 
           {/* User Profile */}
