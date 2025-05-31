@@ -1,0 +1,120 @@
+Ziel:
+Erstelle eine vollständige Webanwendung, mit der Benutzer sich registrieren und einloggen können, um eigene personalisierte Sprachbots (KI-gestützte Chatbots) zu erstellen, zu verwalten und zu trainieren. Die Plattform soll es ermöglichen, für jeden Bot individuelle Fähigkeiten, Persönlichkeitsmerkmale und Wissensinhalte zu definieren.
+
+🛠️ Funktionale Anforderungen:
+
+Benutzerregistrierung & Authentifizierung
+
+Registrierung mit E-Mail und Passwort
+
+Login / Logout
+
+Passwort-Reset via E-Mail (optional)
+
+JWT-basierte Session-Verwaltung
+
+Rollen: Benutzer (Standard), Admin (optional)
+
+Bot-Verwaltung
+
+Nach dem Login: Dashboard mit Übersicht der eigenen Bots
+
+„Bot erstellen“-Funktion:
+
+Eingabe von Name, Beschreibung, Zielgruppe
+
+Auswahl eines KI-Modus: Gesprächsbot, Helfer, Assistent, Storyteller etc.
+
+Einstellen von „Persönlichkeitswerten“ (z. B. freundlich, sachlich, humorvoll)
+
+Bearbeitungsseite für jeden Bot:
+
+„Was soll der Bot können?“ – Eingabefeld für Fähigkeiten (z. B. „Kann Fragen zu Medizin beantworten“)
+
+„Was weiß der Bot?“ – Bereich zur strukturierten Wissensbasis / Prompt-Training
+
+Möglichkeit, Beispielgespräche hinzuzufügen (Few-Shot-Training)
+
+API-Key-Integration (OpenAI, Cohere, etc.) für Textgenerierung
+
+Chat-Interface für jeden Bot
+
+Direktes Testen der Bots im Frontend (Textbasiert)
+
+Verlauf pro Bot speichern
+
+Möglichkeit, die Bot-Konfiguration nachträglich zu ändern
+
+Technisches Backend
+
+Datenbank (z. B. MongoDB oder PostgreSQL)
+
+User-Tabelle, Bot-Tabelle, Konfigurationsdaten, Chatverläufe
+
+API-Server (Node.js/Express oder FastAPI)
+
+RESTful API für Benutzer und Bot-Management
+
+Auth-Endpoints
+
+AI-Endpunkt zur Kommunikation mit GPT-API (z. B. OpenAI)
+
+Sicherheit: Rate-Limiting, CORS, Basic Input Validation
+
+Frontend (Single-Page-App)
+
+Framework: React oder Vue
+
+Responsive UI mit moderner Optik (z. B. Tailwind oder Material UI)
+
+Login/Register-Seiten
+
+Dashboard mit Bot-Übersicht
+
+Editor-Oberfläche pro Bot
+
+Integrierter Chat mit dem Bot
+
+Optional / Nice to have
+
+Exportfunktion für Bots (JSON-Export)
+
+Möglichkeit, Bots öffentlich zu teilen
+
+Mehrsprachigkeit
+
+Voice-Chat-Integration mit WebSpeech API
+
+Dark Mode
+
+⚙️ Stack-Vorschlag (anpassbar):
+
+Frontend: React + Tailwind CSS
+
+Backend: Node.js (Express) oder Python (FastAPI)
+
+Datenbank: MongoDB (Atlas) oder PostgreSQL
+
+Auth: JWT + Bcrypt
+
+AI-Integration: OpenAI API (GPT-4) via REST
+
+Beispiel-Userflow:
+
+User registriert sich mit E-Mail + Passwort.
+
+Nach Login wird er ins Dashboard weitergeleitet.
+
+Er klickt auf „Neuen Bot erstellen“.
+
+Er gibt einen Namen ein, beschreibt, was der Bot tun soll und füttert ihn mit Wissen und Fähigkeiten.
+
+Die Plattform speichert diese Angaben als Prompt-Konfiguration.
+
+Im Chatfenster testet der User seinen Bot direkt.
+
+Bot-Antworten werden dynamisch über eine GPT-API erzeugt, basierend auf dem eingestellten Kontext.
+
+🎯 Zielgruppe:
+Privatanwender, Entwickler und Kreative, die eigene, personalisierte KI-Chatbots ohne Coding-Kenntnisse bauen möchten.
+
