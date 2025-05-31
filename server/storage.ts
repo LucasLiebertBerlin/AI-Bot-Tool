@@ -19,22 +19,22 @@ import { eq, desc, and } from "drizzle-orm";
 // Interface for storage operations
 export interface IStorage {
   // User operations
-  getUser(id: string): Promise<User | undefined>;
+  getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Bot operations
-  getBotsByUserId(userId: string): Promise<Bot[]>;
+  getBotsByUserId(userId: number): Promise<Bot[]>;
   getBotById(id: number): Promise<Bot | undefined>;
-  createBot(userId: string, bot: InsertBot): Promise<Bot>;
-  updateBot(id: number, userId: string, bot: Partial<InsertBot>): Promise<Bot | undefined>;
-  deleteBot(id: number, userId: string): Promise<boolean>;
+  createBot(userId: number, bot: InsertBot): Promise<Bot>;
+  updateBot(id: number, userId: number, bot: Partial<InsertBot>): Promise<Bot | undefined>;
+  deleteBot(id: number, userId: number): Promise<boolean>;
   
   // Chat operations
-  getChatSessionsByBotId(botId: number, userId: string): Promise<ChatSession[]>;
+  getChatSessionsByBotId(botId: number, userId: number): Promise<ChatSession[]>;
   getChatSessionById(sessionId: number): Promise<ChatSession | undefined>;
-  createChatSession(userId: string, session: InsertChatSession): Promise<ChatSession>;
+  createChatSession(userId: number, session: InsertChatSession): Promise<ChatSession>;
   getChatMessagesBySessionId(sessionId: number): Promise<ChatMessage[]>;
   addChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
 }

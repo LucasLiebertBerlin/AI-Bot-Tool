@@ -15,7 +15,7 @@ export function registerRoutes(app: Express): Server {
   // Bot routes
   app.get("/api/bots", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const bots = await storage.getBotsByUserId(userId);
       res.json(bots);
     } catch (error) {
@@ -29,7 +29,7 @@ export function registerRoutes(app: Express): Server {
       const botId = parseInt(req.params.id);
       const bot = await storage.getBotById(botId);
       
-      if (!bot || bot.userId !== req.user.claims.sub) {
+      if (!bot || bot.userId !== req.user.id) {
         return res.status(404).json({ message: "Bot not found" });
       }
       
@@ -42,7 +42,7 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/bots", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const botData = insertBotSchema.parse(req.body);
       const bot = await storage.createBot(userId, botData);
       res.status(201).json(bot);
@@ -58,7 +58,7 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/bots/:id", isAuthenticated, async (req: any, res) => {
     try {
       const botId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const botData = insertBotSchema.partial().parse(req.body);
       
       const bot = await storage.updateBot(botId, userId, botData);
@@ -80,7 +80,7 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/bots/:id", isAuthenticated, async (req: any, res) => {
     try {
       const botId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       const success = await storage.deleteBot(botId, userId);
       
