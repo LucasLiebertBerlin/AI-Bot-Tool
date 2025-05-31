@@ -211,9 +211,8 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ message: "Message content is required" });
       }
 
-      // Find the bot in memory
-      const bots = userBots.get(userId) || [];
-      const bot = bots.find(b => b.id === botId);
+      // Find the bot in database
+      const bot = await storage.getBotById(botId);
       
       if (!bot) {
         return res.status(404).json({ message: "Bot not found" });
@@ -247,7 +246,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/dashboard/stats", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const bots = userBots.get(userId) || [];
+      const bots = await storage.getBotsByUserId(userId);
       
       const stats = {
         activeBots: bots.filter(bot => bot.status === 'active').length,
