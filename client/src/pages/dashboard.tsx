@@ -90,7 +90,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-slate-200">
         <div className="flex flex-col flex-1 min-h-0">
@@ -348,44 +348,44 @@ export default function Dashboard() {
             </div>
           </div>
         </main>
-      </div>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-muted-foreground">
-              © 2024 Liebert IT - AI Bot Studio. Alle Rechte vorbehalten.
-            </div>
-            <div className="flex space-x-6 text-sm">
-              <button 
-                onClick={() => setLocation("/privacy")}
-                className="text-muted-foreground hover:text-slate-900 transition-colors"
-              >
-                Datenschutz
-              </button>
-              <button 
-                onClick={() => setLocation("/impressum")}
-                className="text-muted-foreground hover:text-slate-900 transition-colors"
-              >
-                Impressum
-              </button>
-              <button 
-                onClick={() => setLocation("/terms")}
-                className="text-muted-foreground hover:text-slate-900 transition-colors"
-              >
-                AGB
-              </button>
-              <button 
-                onClick={() => setLocation("/contact")}
-                className="text-muted-foreground hover:text-slate-900 transition-colors"
-              >
-                Kontakt
-              </button>
+        {/* Footer */}
+        <footer className="bg-white border-t border-slate-200 py-6 mt-auto">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+              <div className="text-sm text-muted-foreground">
+                © 2024 Liebert IT - AI Bot Studio. Alle Rechte vorbehalten.
+              </div>
+              <div className="flex space-x-6 text-sm">
+                <button 
+                  onClick={() => setLocation("/privacy")}
+                  className="text-muted-foreground hover:text-slate-900 transition-colors"
+                >
+                  Datenschutz
+                </button>
+                <button 
+                  onClick={() => setLocation("/impressum")}
+                  className="text-muted-foreground hover:text-slate-900 transition-colors"
+                >
+                  Impressum
+                </button>
+                <button 
+                  onClick={() => setLocation("/terms")}
+                  className="text-muted-foreground hover:text-slate-900 transition-colors"
+                >
+                  AGB
+                </button>
+                <button 
+                  onClick={() => setLocation("/contact")}
+                  className="text-muted-foreground hover:text-slate-900 transition-colors"
+                >
+                  Kontakt
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       {/* Tutorial Modal */}
       <TutorialModal 
