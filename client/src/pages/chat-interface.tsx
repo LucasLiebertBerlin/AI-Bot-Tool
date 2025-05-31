@@ -20,9 +20,10 @@ export default function ChatInterface() {
   const [, setLocation] = useLocation();
   const params = useParams();
   const queryClient = useQueryClient();
-  const botId = parseInt(params.id);
+  const botId = parseInt(params.id || "0");
   const [message, setMessage] = useState("");
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
+  const [localMessages, setLocalMessages] = useState<ChatMessageType[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Redirect to home if not authenticated
@@ -123,8 +124,7 @@ export default function ChatInterface() {
     },
   });
 
-  // Store messages locally since we're not using persistent sessions
-  const [localMessages, setLocalMessages] = useState<ChatMessageType[]>([]);
+
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
