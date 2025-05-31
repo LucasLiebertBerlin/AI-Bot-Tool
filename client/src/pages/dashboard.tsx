@@ -133,6 +133,13 @@ export default function Dashboard() {
               <Users className="mr-3 h-4 w-4" />
               Kontakt
             </button>
+            <button 
+              onClick={() => setShowTutorial(true)}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg"
+            >
+              <HelpCircle className="mr-3 h-4 w-4" />
+              Tutorial
+            </button>
           </nav>
 
           {/* User Profile */}
@@ -379,6 +386,12 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Tutorial Modal */}
+      <TutorialModal 
+        isOpen={showTutorial} 
+        onClose={() => setShowTutorial(false)} 
+      />
     </div>
   );
 }
