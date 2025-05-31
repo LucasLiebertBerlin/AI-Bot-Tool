@@ -64,9 +64,11 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/bots/:id", isAuthenticated, async (req: any, res) => {
     try {
       const botId = parseInt(req.params.id);
-      const bot = await storage.getBotById(botId);
+      const userId = req.user.id;
+      const bots = userBots.get(userId) || [];
+      const bot = bots.find(b => b.id === botId);
       
-      if (!bot || bot.userId !== req.user.id) {
+      if (!bot) {
         return res.status(404).json({ message: "Bot not found" });
       }
       
@@ -81,20 +83,33 @@ export function registerRoutes(app: Express): Server {
     try {
       const botId = parseInt(req.params.id);
       const userId = req.user.id;
-      const botData = insertBotSchema.partial().parse(req.body);
+      const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples } = req.body;
       
-      const bot = await storage.updateBot(botId, userId, botData);
+      const bots = userBots.get(userId) || [];
+      const botIndex = bots.findIndex(b => b.id === botId);
       
-      if (!bot) {
+      if (botIndex === -1) {
         return res.status(404).json({ message: "Bot not found" });
       }
       
-      res.json(bot);
+      // Update bot data
+      bots[botIndex] = {
+        ...bots[botIndex],
+        name: name || bots[botIndex].name,
+        description: description !== undefined ? description : bots[botIndex].description,
+        type: type || bots[botIndex].type,
+        targetAudience: targetAudience !== undefined ? targetAudience : bots[botIndex].targetAudience,
+        capabilities: capabilities !== undefined ? capabilities : bots[botIndex].capabilities,
+        knowledgeBase: knowledgeBase !== undefined ? knowledgeBase : bots[botIndex].knowledgeBase,
+        personality: personality || bots[botIndex].personality,
+        examples: examples || bots[botIndex].examples,
+        updatedAt: new Date()
+      };
+      
+      userBots.set(userId, bots);
+      res.json(bots[botIndex]);
     } catch (error) {
       console.error("Error updating bot:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid bot data", errors: error.errors });
-      }
       res.status(500).json({ message: "Failed to update bot" });
     }
   });
@@ -173,12 +188,13 @@ export function registerRoutes(app: Express): Server {
     
     // Greeting responses
     if (userMessage.toLowerCase().includes('hallo') || userMessage.toLowerCase().includes('hi')) {
+      const botName = bot.name || "Ihr Bot";
       if (personality.friendliness > 7) {
-        response = `Hallo! Schön, dich kennenzulernen! Ich bin ${bot.name}. Wie kann ich dir heute helfen?`;
+        response = `Hallo! Schön, dich kennenzulernen! Ich bin ${botName}. Wie kann ich dir heute helfen?`;
       } else if (personality.formality > 7) {
-        response = `Guten Tag. Ich bin ${bot.name}. Womit kann ich Ihnen behilflich sein?`;
+        response = `Guten Tag. Ich bin ${botName}. Womit kann ich Ihnen behilflich sein?`;
       } else {
-        response = `Hi! Ich bin ${bot.name}. Was kann ich für dich tun?`;
+        response = `Hi! Ich bin ${botName}. Was kann ich für dich tun?`;
       }
     }
     // Question responses
