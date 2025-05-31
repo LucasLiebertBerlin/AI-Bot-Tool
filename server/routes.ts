@@ -12,11 +12,14 @@ export function registerRoutes(app: Express): Server {
 
   // Auth routes are now handled in auth.ts
 
+  // Temporary bot storage until database is fixed
+  const userBots = new Map<string, any[]>();
+
   // Bot routes
   app.get("/api/bots", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const bots = await storage.getBotsByUserId(userId);
+      const bots = userBots.get(userId) || [];
       res.json(bots);
     } catch (error) {
       console.error("Error fetching bots:", error);
@@ -29,7 +32,7 @@ export function registerRoutes(app: Express): Server {
       const userId = req.user.id;
       const { name, description, type, targetAudience, capabilities, knowledgeBase, personality, examples } = req.body;
       
-      // Simple bot creation without complex schema validation for now
+      // Create bot object
       const bot = {
         id: Math.floor(Math.random() * 1000000),
         userId,
@@ -45,6 +48,11 @@ export function registerRoutes(app: Express): Server {
         createdAt: new Date(),
         updatedAt: new Date()
       };
+      
+      // Store bot in memory
+      const existingBots = userBots.get(userId) || [];
+      existingBots.push(bot);
+      userBots.set(userId, existingBots);
       
       res.status(201).json(bot);
     } catch (error) {
@@ -248,10 +256,10 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/dashboard/stats", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      const bots = userBots.get(userId) || [];
       
-      // Simple stats without database queries for now
       const stats = {
-        activeBots: 0,
+        activeBots: bots.filter(bot => bot.status === 'active').length,
         conversationsToday: 0,
         successRate: 95
       };
