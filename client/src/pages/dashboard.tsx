@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bot, MessageCircle, TrendingUp, Plus, Search, Shield, LogOut, Users, HelpCircle, User } from "lucide-react";
+import { Bot, MessageCircle, TrendingUp, Plus, Search, Shield, LogOut, Users, HelpCircle, User, Menu, X } from "lucide-react";
 import BotCard from "@/components/bot-card";
 import TutorialModal from "@/components/tutorial-modal";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const { isAdmin } = useAdmin();
   const [, setLocation] = useLocation();
   const [showTutorial, setShowTutorial] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -93,7 +94,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-slate-200">
-        <div className="flex flex-col flex-1 min-h-0">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Logo Section */}
           <div className="flex items-center h-16 px-6 bg-white border-b border-slate-200">
             <div className="flex items-center space-x-3">
@@ -105,7 +106,7 @@ export default function Dashboard() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
               <Bot className="mr-3 h-4 w-4" />
               Dashboard
@@ -143,11 +144,11 @@ export default function Dashboard() {
           </nav>
 
           {/* User Profile */}
-          <div className="flex-shrink-0 px-4 py-4 border-t border-slate-200">
-            <div className="flex items-center justify-between">
+          <div className="flex-shrink-0 p-4 border-t border-slate-200 bg-white">
+            <div className="space-y-2">
               <button 
                 onClick={() => setLocation("/settings")}
-                className="flex items-center flex-1 text-left hover:bg-slate-50 rounded-lg p-2 transition-colors"
+                className="flex items-center w-full text-left hover:bg-slate-50 rounded-lg p-2 transition-colors"
               >
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                   <User className="h-4 w-4 text-white" />
@@ -169,7 +170,7 @@ export default function Dashboard() {
                     window.location.href = "/api/logout";
                   }
                 }}
-                className="flex items-center gap-2 ml-2"
+                className="flex items-center gap-2 w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <LogOut className="h-4 w-4" />
                 Abmelden
@@ -178,6 +179,116 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200">
+            <div className="flex flex-col h-full">
+              {/* Mobile Header */}
+              <div className="flex items-center justify-between h-16 px-6 border-b border-slate-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <Bot className="h-4 w-4 text-white" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-slate-900">Liebert IT</h1>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setMobileMenuOpen(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Mobile Navigation */}
+              <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
+                  <Bot className="mr-3 h-4 w-4" />
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => {
+                    setLocation("/create-bot");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg"
+                >
+                  <Plus className="mr-3 h-4 w-4" />
+                  Bot erstellen
+                </button>
+                {isAdmin && (
+                  <button 
+                    onClick={() => {
+                      setLocation("/admin");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg"
+                  >
+                    <Shield className="mr-3 h-4 w-4" />
+                    Admin Panel
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    setLocation("/contact");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg"
+                >
+                  <Users className="mr-3 h-4 w-4" />
+                  Kontakt
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowTutorial(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg"
+                >
+                  <HelpCircle className="mr-3 h-4 w-4" />
+                  Tutorial
+                </button>
+              </nav>
+
+              {/* Mobile User Profile */}
+              <div className="flex-shrink-0 p-4 border-t border-slate-200 bg-white">
+                <div className="space-y-2">
+                  <button 
+                    onClick={() => {
+                      setLocation("/settings");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center w-full text-left hover:bg-slate-50 rounded-lg p-2 transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <p className="text-sm font-medium text-slate-900">Benutzer</p>
+                      <p className="text-xs text-slate-500">Einstellungen</p>
+                    </div>
+                  </button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await apiRequest("POST", "/api/logout");
+                        window.location.href = "/";
+                      } catch (error) {
+                        window.location.href = "/api/logout";
+                      }
+                    }}
+                    className="flex items-center gap-2 w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Abmelden
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="lg:pl-64 flex flex-col flex-1">
