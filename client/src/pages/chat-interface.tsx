@@ -92,7 +92,7 @@ export default function ChatInterface() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [localMessages]);
 
   const createSessionMutation = useMutation({
     mutationFn: async (data: { botId: number; title: string }) => {
@@ -123,15 +123,19 @@ export default function ChatInterface() {
     },
   });
 
+  // Store messages locally since we're not using persistent sessions
+  const [localMessages, setLocalMessages] = useState<ChatMessageType[]>([]);
+
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      if (!currentSessionId) throw new Error("No active session");
-      const response = await apiRequest("POST", `/api/sessions/${currentSessionId}/messages`, { content });
+      // Use botId directly since we're not using sessions
+      const response = await apiRequest("POST", `/api/sessions/${botId}/messages`, { content });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Add both user and bot messages to local state
+      setLocalMessages(prev => [...prev, data.userMessage, data.botMessage]);
       setMessage("");
-      queryClient.invalidateQueries({ queryKey: ["/api/sessions", currentSessionId, "messages"] });
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
@@ -161,12 +165,7 @@ export default function ChatInterface() {
   };
 
   const clearChat = () => {
-    if (bot) {
-      createSessionMutation.mutate({
-        botId,
-        title: `Chat with ${bot.name}`,
-      });
-    }
+    setLocalMessages([]);
   };
 
   const getStatusColor = (status: string) => {
@@ -267,7 +266,7 @@ export default function ChatInterface() {
           )}
 
           {/* Chat Messages */}
-          {messages?.map((msg) => (
+          {localMessages.map((msg) => (
             <ChatMessage
               key={msg.id}
               message={msg}
