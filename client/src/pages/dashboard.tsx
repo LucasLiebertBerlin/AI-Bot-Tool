@@ -132,9 +132,18 @@ export default function Dashboard() {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => window.location.href = "/api/logout"}
+                onClick={async () => {
+                  try {
+                    await apiRequest("POST", "/api/logout");
+                    window.location.href = "/";
+                  } catch (error) {
+                    // Fallback to direct logout
+                    window.location.href = "/api/logout";
+                  }
+                }}
               >
-                Logout
+                <LogOut className="h-4 w-4 mr-2" />
+                Abmelden
               </Button>
             </div>
           </div>

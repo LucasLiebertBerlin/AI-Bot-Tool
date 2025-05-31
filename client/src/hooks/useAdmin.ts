@@ -6,7 +6,14 @@ export function useAdmin() {
     queryKey: ["/api/user"],
   });
 
-  const isAdmin = user?.email?.includes("admin") || false;
+  const { data: allUsers = [] } = useQuery<User[]>({
+    queryKey: ["/api/admin/users"],
+    retry: false,
+  });
+
+  const isFirstUser = allUsers.length > 0 && allUsers[0].id === user?.id;
+  const hasAdminEmail = user?.email?.includes("admin") || false;
+  const isAdmin = hasAdminEmail || isFirstUser;
 
   return {
     isAdmin,

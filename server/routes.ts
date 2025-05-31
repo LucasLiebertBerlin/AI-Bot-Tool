@@ -268,9 +268,14 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
-      // For now, admin is user with email containing "admin"
+      // Admin is user with email containing "admin" OR the first user (temporary)
       const user = await storage.getUser(req.user.id);
-      if (!user || !user.email?.includes("admin")) {
+      const allUsers = await storage.getAllUsers();
+      
+      const isFirstUser = allUsers.length > 0 && allUsers[0].id === req.user.id;
+      const hasAdminEmail = user?.email?.includes("admin");
+      
+      if (!user || (!hasAdminEmail && !isFirstUser)) {
         return res.status(403).json({ message: "Admin access required" });
       }
       
